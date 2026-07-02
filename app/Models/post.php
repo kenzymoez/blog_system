@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class post extends Model
 {
+    use HasFactory;
     protected $fillable = ["name"];
     protected $guarded = ["id"];
     // protected $hidden = [""];
     public function user(){
-        $this->belongsTo(User::class);
-        
+        return $this->belongsTo(User::class);
     }
 }
