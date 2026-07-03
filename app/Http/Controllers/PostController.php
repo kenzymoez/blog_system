@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResource;
+use Cache;
 use Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -19,11 +20,20 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        // $posts=Cache::get("AllPosts");
+        // if(!$posts){
+        //     $posts=Post::all();
+        //     Cache::put("AllPosts",$posts,3600);
+        // }
+        // $posts = Post::all();
+        $posts = Cache::remember("AllPosts",3600,function(){
+            return Post::all();
+        });
+
         return response()->json([
             'success'=>true, 
-            // 'data'=> $posts
-            'data'=> PostResource::collection($posts)
+            'data'=> $posts
+            // 'data'=> PostResource::collection($posts)
             ]);
     }
 
@@ -42,7 +52,10 @@ class PostController extends Controller
     public function show(string $id)
     {
         // $this->authorize('view', Post::class);
-        Post::with("user")->findOrFail($id);
+            $posts = Cache::remember("Post".$id,3600,function()use($id){
+            return Post::with("user")->findOrFail($id);
+        });
+
         }
 
     /**
@@ -54,6 +67,10 @@ class PostController extends Controller
         //direct call
         // $this->authorize('update', $post);
         $post->updated($request);
+        Cache::forget("AllPosts");
+        Cache::forget("Post".$id);
+        //php artisan cache:clear or
+        Cache::flush();
         return response()->json([
             'message'=> 'Post updated'
         ],200);
