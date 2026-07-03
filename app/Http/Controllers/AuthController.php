@@ -5,22 +5,26 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
+use Exception;
 class AuthController extends Controller
 {
     public function register(Request $request){
-    $role = Role::where('name','LIKE','%user%')->firstorFail();
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => $request->password,
-        'role_id' => $role->id
-    ]);
-    $token = auth('api')->login($user);
-
-    return response()->json([
+        try{
+            $role = Role::where('name','LIKE','%user%')->firstorFail();
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $request->password,
+                'role_id' => $role->id
+            ]);
+            $token = auth('api')->login($user);
+        }catch(Exception $e){
+            return response()->json(['exception' =>$e->getMessage()]);
+        }
+        return response()->json([
         'message' => 'User registered successfully',
-        'token' => $token
-    ]);
+        'token' => $token,
+        ],201);
     }
 
     public function login(Request $request){

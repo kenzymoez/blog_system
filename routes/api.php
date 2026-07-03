@@ -13,7 +13,12 @@ use app\Http\Controllers\PostController;
 // });
 
 // Route::get('/posts', [PostController::class]);
-Route::resource('/posts', PostController::class);
+
+// Route::resource('/posts', PostController::class);
+Route::middleware(['auth:api','Admin'])->group(function(){
+    Route::resource('/posts', PostController::class);
+});
+
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 //middleware -> checks lw el user logged in 34an mynfa3sh el user y3ml log out/refresh/view my profile w howa msh logged in
@@ -22,7 +27,7 @@ Route::post('/login',[AuthController::class,'login']);
 // Route::get('/user',[AuthController::class,'me'])->middleware('auth:api');
 
 Route::middleware('auth:api')->group(function(){
-Route::post('/logout',[AuthController::class,'logout']);
-Route::post('/refresh',[AuthController::class,'refresh']);
-Route::get('/user',[AuthController::class,'me']);
+    Route::post('/logout',[AuthController::class,'logout']);
+    Route::post('/refresh',[AuthController::class,'refresh']);
+    Route::get('/user',[AuthController::class,'me']);
 });
