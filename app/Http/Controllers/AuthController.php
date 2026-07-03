@@ -10,11 +10,18 @@ class AuthController extends Controller
 {
     public function register(Request $request){
         try{
+            //inline validation
+        $validated = $request->validate([
+            "name" => 'required|string|max:50',
+            'email'=> 'required|email|unique:users,email',
+            'password'=> 'required|string|min:8'
+        ]);
+
             $role = Role::where('name','LIKE','%user%')->firstorFail();
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => $request->password,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
                 'role_id' => $role->id
             ]);
             $token = auth('api')->login($user);
