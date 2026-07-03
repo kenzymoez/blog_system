@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Gate;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,10 @@ class PostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // return true; ay had y2dar yedkhol
+        // return auth('check')->check();
+        Gate::allows('IsUSer');
+
     }
 
     /**
@@ -32,8 +36,8 @@ class PostRequest extends FormRequest
     {
         return [
             "name.required"=>"You must enter your name.",
-            "name.min"=>"Name should be maximum 50 characters",
-            
+            "name.max"=>"Name should be maximum 50 characters",
+
             "email.email"=>"Incorrect email format",
             "email.required"=>"You must enter your email.",
             "email.unique"=>"Email already used",

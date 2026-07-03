@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResource;
+use Gate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use app\Models\post;
 
 class PostController extends Controller
 {
+    public function __construct(){
+        $this->authorizeResource(Post::class,"posts");
+    }
     /**
      * Display a listing of the resource.
      */
@@ -27,7 +32,8 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
-        post::create($request->all());
+        Gate::authorize('IsUser');
+        Post::create($request->all());
     }
 
     /**
@@ -35,7 +41,8 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        post::with("user")->findOrFail($id);
+        // $this->authorize('view', Post::class);
+        Post::with("user")->findOrFail($id);
         }
 
     /**
@@ -43,7 +50,13 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        post::findOrFail($id)->updated($request);
+        $post = Post::findOrFail($id);
+        //direct call
+        // $this->authorize('update', $post);
+        $post->updated($request);
+        return response()->json([
+            'message'=> 'Post updated'
+        ],200);
     }
 
     /**
@@ -51,6 +64,6 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        post::delete($id);
+        Post::delete($id);
     }
 }
